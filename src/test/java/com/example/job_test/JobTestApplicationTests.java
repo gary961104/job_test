@@ -6,10 +6,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class JobTestApplicationTests {
 
+
+
     @Test
     void contextLoads() {
 
-        System.out.println("測試");
     }
 
 }
