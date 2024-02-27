@@ -37,64 +37,71 @@ public class ForexService {
         WebDriver driver = new ChromeDriver(options);
         driver.get(forexConfig.getWebDriverUrl());
 
-        // 定位到下拉選單
-        WebElement provinceDropdown = driver.findElement(By.id("currency"));
+        try {
 
-        // 建立Select物件
-        Select select = new Select(provinceDropdown);
+            // 定位到下拉選單
+            WebElement provinceDropdown = driver.findElement(By.id("currency"));
 
-        // 取得所有下拉選項
-        List<WebElement> selectOptions = select.getOptions();
+            // 建立Select物件
+            Select select = new Select(provinceDropdown);
 
-        // 遍歷所有下拉選項，並取得其數據
-        for (WebElement option : selectOptions) {
+            // 取得所有下拉選項
+            List<WebElement> selectOptions = select.getOptions();
 
-            String currency = option.getAttribute("value");
-            System.out.println("[GetWebDataService]-(getDocument) - 正在取得" +currency + "匯率資料");
+            // 遍歷所有下拉選項，並取得其數據
+            for (WebElement option : selectOptions) {
 
-            // 下拉選項有請選擇，過濾掉
-            if (null != currency && !currency.isBlank()) {
+                String currency = option.getAttribute("value");
+                System.out.println("[GetWebDataService]-(getDocument) - 正在取得" + currency + "匯率資料");
 
-                // 取得下拉選單中value的值，用來切換不同的下拉選項。
-                select.selectByValue(currency);
+                // 下拉選項有請選擇，過濾掉
+                if (null != currency && !currency.isBlank()) {
 
-                // 執行JS腳本 取得動態產生的資料
-                JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
-                String script =
-                        "var datarateElements = document.getElementsByClassName('datarate');" +
-                        "var result = [];" +
-                        "for (var i = 0; i < datarateElements.length; i++) {" +
-                        "    var datarateElement = datarateElements[i];"+
-                        "    var centerElement = datarateElement.querySelector('.table-text-center');" +
-                        "    var rightElements = datarateElement.querySelectorAll('.table-text-right');" +
-                        "    var data = {" +
-                        "        date: centerElement.textContent ," +
-                        "        buy: rightElements[0].textContent," +
-                        "        sell: rightElements[1].textContent" +
-                        "    };" +
-                        "    result.push(data);" +
-                        "}" +
-                        "return result;";
+                    // 取得下拉選單中value的值，用來切換不同的下拉選項。
+                    select.selectByValue(currency);
+
+                    // 執行JS腳本 取得動態產生的資料
+                    JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+                    String script =
+                            "var datarateElements = document.getElementsByClassName('datarate');" +
+                                    "var result = [];" +
+                                    "for (var i = 0; i < datarateElements.length; i++) {" +
+                                    "    var datarateElement = datarateElements[i];" +
+                                    "    var centerElement = datarateElement.querySelector('.table-text-center');" +
+                                    "    var rightElements = datarateElement.querySelectorAll('.table-text-right');" +
+                                    "    var data = {" +
+                                    "        date: centerElement.textContent ," +
+                                    "        buy: rightElements[0].textContent," +
+                                    "        sell: rightElements[1].textContent" +
+                                    "    };" +
+                                    "    result.push(data);" +
+                                    "}" +
+                                    "return result;";
 
 
-                //取得擷取資料
-                List<ForexDetail> forexDetailList = (List<ForexDetail>) jsExecutor.executeScript(script);
+                    //取得擷取資料
+                    List<ForexDetail> forexDetailList = (List<ForexDetail>) jsExecutor.executeScript(script);
 
-                Gson gson = new Gson();
-                String json = gson.toJson(forexDetailList);
+                    Gson gson = new Gson();
+                    String json = gson.toJson(forexDetailList);
 
-                Forex forex = new Forex();
-                forex.setCurrency(currency);
-                forex.setForexDetailListJson(json);
-                forexList.add(forex);
+                    Forex forex = new Forex();
+                    forex.setCurrency(currency);
+                    forex.setForexDetailListJson(json);
+                    forexList.add(forex);
 
-                System.out.println("[GetWebDataService]-(getDocument) - 取得的資料：" + forex);
-                System.out.println("數量:" + forexDetailList.size());
+                    System.out.println("[GetWebDataService]-(getDocument) - 取得的資料：" + forex);
+                    System.out.println("數量:" + forexDetailList.size());
+                }
+
             }
 
+            System.out.println("[GetWebDataService]-(getDocument) - end");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            driver.quit();
         }
-
-        System.out.println("[GetWebDataService]-(getDocument) - end");
         return forexList;
     }
 

@@ -23,7 +23,9 @@ public class ForexController {
         ModelAndView modelAndView = new ModelAndView("index");
         try {
             List<Forex> forexList = forexService.getDocument();
-            modelAndView.addObject("forexList", forexList);
+            if (null != forexList && forexList.size() > 0){
+                modelAndView.addObject("forexList", forexList);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
