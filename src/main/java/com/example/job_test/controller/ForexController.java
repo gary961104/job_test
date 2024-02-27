@@ -19,7 +19,7 @@ public class ForexController {
     private ForexService forexService;
 
     @GetMapping("/")
-    public ModelAndView test(){
+    public ModelAndView home(){
         ModelAndView modelAndView = new ModelAndView("index");
         try {
             List<Forex> forexList = forexService.getDocument();
